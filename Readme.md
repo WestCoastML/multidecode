@@ -1,4 +1,4 @@
-# Efficient MultiDecoding with Hugging Face Transformers
+# Generating tokens faster using predictions from multiple token positions
 
 This repository shares how to unlock the existing parallel decoding ability of autoregressive large language models (LLMs).
 We call this algorithm "MultiDecode".

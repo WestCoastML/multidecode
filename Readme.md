@@ -8,6 +8,9 @@ MultiDecode leverages custom RoPE position values and custom attention masks
 to simultaneously and efficiently generate exact next token predictions for multiple independent token positions, using a single, shared KV cache.
 Support for these custom position and mask arguments already exists in many libraries, including the Hugging Face Transformers library.
 
+This repo contains explanations, examples, and sample code showing how to use the MultiDecode paradigm for different use cases. 
+A [YouTube video explanation of MultiDecode](https://youtu.be/9ld43ZYKzeI) is also available.
+
 ## Introduction
 
 Beam search is a popular decoding algorithm for text generation that explores multiple candidate sequences (branchs) to find the most likely output. However, traditional beam search can be computationally expensive, especially when generating long sequences or using a large number of beams.

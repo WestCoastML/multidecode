@@ -1,0 +1,16 @@
+# Ignore TODO list
+TODO.md
+
+# Ignore venv
+venv/
+.venv/
+
+# Ignore environment variables file
+.env
+
+# Ignore Python cache files
+__pycache__/
+# Ignore macOS system files
+.DS_Store
+.pytest_cache/
+multidecode.egg-info/

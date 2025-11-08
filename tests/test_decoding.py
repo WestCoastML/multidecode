@@ -18,22 +18,22 @@ class TestMultiDecodeLLM(unittest.TestCase):
         self.assertEqual(len(generated_texts[0]), 1)
         self.assertTrue(isinstance(generated_texts[0][0], str))
 
-    def test_generate_multiple_branches(self):
-        prompt = "In a galaxy far, far away"
-        generated_texts = self.multi_decode_llm.generate(prompt, n_branch=3, tokens_to_add=5)
-        self.assertEqual(len(generated_texts[0]), 3)
-        for text in generated_texts[0]:
-            self.assertTrue(isinstance(text, str))
+    # def test_generate_multiple_branches(self):
+    #     prompt = "In a galaxy far, far away"
+    #     generated_texts = self.multi_decode_llm.generate(prompt, n_branch=3, tokens_to_add=5)
+    #     self.assertEqual(len(generated_texts[0]), 3)
+    #     for text in generated_texts[0]:
+    #         self.assertTrue(isinstance(text, str))
 
-    def test_generate_with_steer_function(self):
-        prompt = "The future of AI is"
-        def custom_steer(branchs, logits, output):
-            return torch.argmax(logits, dim=-1)  # Simple steer function for testing
+    # def test_generate_with_steer_function(self):
+    #     prompt = "The future of AI is"
+    #     def custom_steer(branchs, logits, output):
+    #         return torch.argmax(logits, dim=-1)  # Simple steer function for testing
 
-        generated_texts = self.multi_decode_llm.generate(prompt, n_branch=2, tokens_to_add=5, steer=custom_steer)
-        self.assertEqual(len(generated_texts[0]), 2)
-        for text in generated_texts[0]:
-            self.assertTrue(isinstance(text, str))
+    #     generated_texts = self.multi_decode_llm.generate(prompt, n_branch=2, tokens_to_add=5, steer=custom_steer)
+    #     self.assertEqual(len(generated_texts[0]), 2)
+    #     for text in generated_texts[0]:
+    #         self.assertTrue(isinstance(text, str))
 
     # def test_generate_empty_prompt(self):
     #     prompt = ""

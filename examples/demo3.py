@@ -1,11 +1,13 @@
 ## Example script demonstrating multi-prompt generation with shared context
 
 import time
+import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from multidecode.mdecode import MultiDecodeLLM
-import torch
+from multidecode.auth import hf_login
 
 # Load the model and tokenizer
+hf_login()
 model_name = "meta-llama/Llama-3.2-1B"
 tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
 model = AutoModelForCausalLM.from_pretrained(model_name)

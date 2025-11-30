@@ -8,9 +8,14 @@ def hf_login(token: str | None = None, from_env: bool = True, colab_userdata: bo
             token = userdata.get('huggingface')
         except ImportError:
             pass
-    elif token is None and from_env:
+    if token is None and from_env:
         print('Using HUGGINGFACE environment variable for authentication.')
+        try:
+            import dotenv
+            dotenv.load_dotenv()
+        except:
+            pass
         token = os.getenv("HUGGINGFACE")
-    elif token is None:
+    if token is None:
         raise ValueError("No Hugging Face token provided.")
     login(token=token)

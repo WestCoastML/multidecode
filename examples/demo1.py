@@ -8,7 +8,7 @@ from multidecode.auth import hf_login
 
 # Load the model and tokenizer
 hf_login()
-model_name="meta-llama/Llama-3.2-1B"
+model_name = "meta-llama/Llama-3.2-1B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
@@ -16,7 +16,7 @@ model = AutoModelForCausalLM.from_pretrained(model_name)
 mdllm = MultiDecodeLLM(model=model, tokenizer=tokenizer)
 
 # Define a prompt
-prompt = "Once upon a time"
+prompt = "Complete this short sentence: Once upon a time"
 
 # Measure setup time
 start_setup_time = time.time()
@@ -30,7 +30,7 @@ output = mdllm.generate(
     model=model,
     input_ids=input_ids,
     mask=mask,
-    gen_len=10,
+    gen_len=100,
     n_branch=5,
     greedy=False
 )

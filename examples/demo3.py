@@ -8,7 +8,7 @@ from multidecode.auth import hf_login
 
 # Load the model and tokenizer
 hf_login()
-model_name = "meta-llama/Llama-3.2-1B"
+model_name = "meta-llama/Llama-3.2-1B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
 model = AutoModelForCausalLM.from_pretrained(model_name)
 # if torch.backends.mps.is_available():
@@ -19,7 +19,7 @@ model = AutoModelForCausalLM.from_pretrained(model_name)
 mdllm = MultiDecodeLLM(model=model, tokenizer=tokenizer)
 
 # Define prompts
-prompts = ["What color is the bike?", "What color is the grass?"]
+prompts = ["Be brief. What color is the grass?", "Be brief. What color is the bike?"]
 context = "The house is red. The grass is green. The bike is purple. "
 
 
@@ -37,7 +37,7 @@ output = mdllm.generate(
     positions=positions,
     mask=mask,
     branch_locations=branch_locations,
-    gen_len=10,
+    gen_len=100,
     greedy=True
 )
 end_gen_time = time.time()

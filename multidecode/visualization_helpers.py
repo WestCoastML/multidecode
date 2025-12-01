@@ -14,6 +14,9 @@ def print_mask(mask):
         for j in range(mask.shape[3]):
             print('*' if mask[0,0,i,j]==0. else '.',end="")
         print()
+    for j in range(mask.shape[3]):
+        print(f'{j%10}',end="")
+    print()
 
 def print_full(output, tokenizer):
     full_ids=torch.cat([output['input_ids'],output['output_ids']],dim=-1)
@@ -25,7 +28,7 @@ def print_full(output, tokenizer):
         for p in range(mask.shape[3]):
             if mask[0,0,b,p] == 0.0:
                 branch_full_ids.append(int(full_ids[0,p]))
-        print(f"{b}:{''.join(tokenizer.batch_decode(branch_full_ids, skip_special_tokens=True))}")
+        print(f"***{b}:{''.join(tokenizer.batch_decode(branch_full_ids, skip_special_tokens=True))}")
         
 
 def print_args(input_ids=None,positions=None,mask=None,branch_locations=None):

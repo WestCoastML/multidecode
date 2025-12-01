@@ -49,6 +49,7 @@ class MultiDecodeLLM:
 
     # Case 1: one prompt, n runs
     def setup_one_prompt_n_runs(self, prompt: str, verbose=False):
+        prompt = "<|start_header_id|>user<|end_header_id|>\n" + prompt + "\n<|start_header_id|>assistant<|end_header_id|>\n"
         input_ids=self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)['input_ids'].to(self.model.device)
         mask = self.lut_attn(input_ids.shape[1])
         if verbose:
@@ -59,13 +60,15 @@ class MultiDecodeLLM:
         
 
     # Case 2: multi prompt, one run
-    def setup_multi_prompt_one_run(self, prompts: list, context=None, verbose=False):
-        context_ids = self.tokenizer(context, return_tensors="pt", padding=True, truncation=True)['input_ids'].to(self.model.device) if context is not None else None
+    def setup_multi_prompt_one_run(self, prompts: list, context="", verbose=False):
+        context = "<|start_header_id|>user<|end_header_id|>\n" + context
+        context_ids = self.tokenizer(context, return_tensors="pt", padding=True, truncation=True)['input_ids'].to(self.model.device)
         context_len = context_ids.shape[1] if context_ids is not None else 0
         input_ids = []
         question_lens = []
         for prompt in prompts:
-            encoded_prompt = self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)['input_ids'].to(self.model.device)
+            encoded_prompt = self.tokenizer(prompt + "\n<|start_header_id|>assistant<|end_header_id|>\n", return_tensors="pt", padding=True, truncation=True)['input_ids'].to(self.model.device)
+            encoded_prompt = encoded_prompt[:,1:]  # Remove initial BOS token when appending to existing context
             input_ids.append(encoded_prompt)
             question_lens.append(encoded_prompt.shape[1])
         input_ids = torch.cat(input_ids, dim=-1)
@@ -151,7 +154,7 @@ class MultiDecodeLLM:
                 sequential positions [0, 1, ..., ctx_len-1]. Shape must match `input_ids`.
             mask (torch.Tensor): Attention mask of shape (batch_size, ctx_len, ctx_len). Controls which tokens
                 the model attends to during prefill.
-            gen_len (int, optional): Number of tokens to generate. Defaults to 10.
+            gen_len (int, optional): Max number of tokens to generate. Defaults to 10.
             n_branch (int, optional): Number of parallel branches for token generation. Defaults to 2.
             greedy (bool, optional): If True, selects the most probable token at each step. If False, samples
                 tokens based on probabilities. Defaults to False.
@@ -238,15 +241,18 @@ class MultiDecodeLLM:
             ## Possibly due to incorrect fine-tuning or not being chat format
             generate_until_eos = (gen_len == -1)
             if generate_until_eos:
-                max_iterations = 30  # Safety limit to prevent infinite loops
-                branches_complete = torch.zeros(n_branch, dtype=torch.bool).to(model.device)
+                max_iterations = 10  # Safety limit to prevent infinite loops
             else:
                 max_iterations = gen_len
+            branches_complete = torch.zeros(n_branch, dtype=torch.bool).to(model.device)
+            EOS = self.tokenizer.eos_token_id
+            # print(f"Initial branches_complete {branches_complete}")
+            # print(f"EOS ID {EOS}")
             
             iteration = 0
             while iteration < max_iterations:
                 # Check if all branches are complete (only if generating until EOS)
-                if generate_until_eos and branches_complete.all():
+                if branches_complete.all():
                     break
                 
                 # select tokens, greedy or not
@@ -258,8 +264,10 @@ class MultiDecodeLLM:
                     tokens = samples.squeeze(-1)
 
                 # Mark branches as complete if they generated EOS token
-                if generate_until_eos:
-                    branches_complete |= (tokens[0] == self.tokenizer.eos_token_id)
+                branches_complete |= (tokens[0] == EOS)
+
+                # Hard code EOS for sequences that are complete
+                tokens[:, branches_complete] = EOS
 
                 # save the generated tokens
                 output_ids=torch.cat([output_ids,tokens],dim=-1)
@@ -333,6 +341,13 @@ class MultiDecodeLLM:
     #     return input2_ids,position2_ids, mask2, pkv
     
     def print_results(self, output):
+        # # Extra debugging detail
+        # print()
+        # print("raw input")
+        # print(f"{''.join(self.tokenizer.batch_decode(output['input_ids'], skip_special_tokens=False))}")
+        # for p,(t,s) in enumerate(zip(output['input_ids'][0].tolist(), self.tokenizer.convert_ids_to_tokens(output['input_ids'][0]) )):  #, output['mask'][0,0,0].tolist()):
+        #     print(f"{p}:{t}:{s} ", end="\n")
+        # print()
         print()
         print("Results")
         print("raw")

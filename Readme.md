@@ -89,7 +89,7 @@ MultiDecode speedup can be applied to many use cases, such as:
 - parallel sampling strategies (i.e. entropix)
 - predicting users 
 
-MultiDecode is an optimized decoding algorithm that improves efficiency by processing multiple generative sequences simultaneously.  
-It does this by using the position_ids and attention_mask arguments to simultaneously predict the next token for all branches.  
-This is more efficient because the context sequence (prior to the branching) is only loaded once and is shared amoungst all branchs. 
+MultiDecode is an optimized decoding algorithm that improves efficiency by processing multiple generative sequences simultaneously.
+It does this by using the position_ids and attention_mask arguments to simultaneously predict the next token for all branches.
+This is more efficient because the context sequence (prior to the branching) is only loaded once and is shared amoungst all branchs.
 It is also faster because multiple tokens are generated on each forward pass of the model.
